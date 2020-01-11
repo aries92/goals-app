@@ -1,13 +1,11 @@
-import App from './app';
-import IndexRoute from './routes/index.route';
-import UsersRoute from './routes/users.route';
+import app from './app';
 import validateEnv from './utils/validateEnv';
+
+const port = process.env.PORT || 3000;
 
 validateEnv();
 
-const app = new App([
-  new IndexRoute(),
-  new UsersRoute(),
-]);
+app.listen(port, () => {
+  console.log(`🚀 App listening on the port ${port}`);
+});
 
-app.listen();
