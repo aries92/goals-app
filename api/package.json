@@ -2,12 +2,14 @@
   "name": "api",
   "version": "0.0.0",
   "scripts": {
-    "start": "NODE_ENV=production ts-node --transpile-only src/server.ts",
-    "dev": "NODE_ENV=development nodemon --watch src --delay 1 --exec 'ts-node' src/server.ts",
+    "start": "cross-env NODE_ENV=production ts-node --transpile-only src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --delay 1 --exec 'ts-node' src/server.ts",
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "dependencies": {
+    "@types/qs-middleware": "^1.0.1",
+    "apollo-server-express": "^2.9.16",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
     "cors": "^2.8.5",
@@ -19,6 +21,7 @@
     "morgan": "^1.9.1",
     "pg": "^7.17.1",
     "pg-hstore": "^2.3.3",
+    "qs-middleware": "^1.0.3",
     "sequelize": "^5.21.3",
     "sequelize-cli": "^5.5.1",
     "ts-jest": "^24.3.0",
