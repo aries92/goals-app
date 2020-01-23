@@ -7,7 +7,7 @@ import errorMiddleware from "./middlewares/error.middleware";
 import { ApolloServer } from "apollo-server-express";
 import query from "qs-middleware";
 import typeDefs from "./typeDefs";
-import resolvers from "./resolves";
+import resolvers from "./resolvers";
 
 const server = new ApolloServer({ typeDefs, resolvers });
 const app = express();
