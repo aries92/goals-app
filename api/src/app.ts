@@ -1,25 +1,27 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import hpp from "hpp";
 import logger from "morgan";
-import errorMiddleware from "./middlewares/error.middleware";
 import { ApolloServer } from "apollo-server-express";
 import query from "qs-middleware";
-import typeDefs from "./typeDefs";
-import resolvers from "./resolvers";
+import { context } from "./utils/helpers";
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  modules: [
+    require("./domain/user/controller"),
+    require("./domain/goal/controller"),
+    require("./domain/chat/controller")
+  ],
+  context
+});
 const app = express();
 const path = "/graphql";
 
-app.use(hpp());
 app.use(helmet());
-app.use(logger("combined"));
+app.use(logger(":method :url :status - :response-time ms"));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(errorMiddleware);
 app.use(query());
 
 server.applyMiddleware({ app, path });
