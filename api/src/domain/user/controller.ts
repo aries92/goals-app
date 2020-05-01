@@ -10,10 +10,7 @@ export const typeDefs = gql`
     getUser(email: String): String
     createUser(email: String, password: String): String
     removeUser(email: String): String
-    login(email: String, password: String): Token
-  }
-  type Token {
-    token: String
+    login(email: String, password: String): String
   }
 `;
 

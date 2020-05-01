@@ -1,5 +1,4 @@
-import { Button, Text, TextInput, View } from "react-native";
-import styled from 'styled-components/native'
+import styled from "styled-components/native";
 
 export const Input = styled.TextInput`
   height: 40px;
@@ -15,3 +14,12 @@ export const Link = styled.Text`
 export const Container = styled.View`
   padding: 15px;
 `;
+
+export const Message = {
+  Error: styled.Text`
+    color: red;
+  `,
+  Success: styled.Text`
+    color: green;
+  `
+};

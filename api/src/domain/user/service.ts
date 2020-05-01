@@ -23,10 +23,10 @@ export async function createUser(email: string, password: string) {
       `INSERT INTO "user" ("email", "hash", "salt") VALUES ($1, $2, $3)`,
       [email, hash, salt]
     );
-    return "user created";
+    return "user has been created";
   } catch (e) {
     console.error(e);
-    return "error";
+    return "error while creating user";
   }
 }
 
@@ -56,6 +56,6 @@ export async function login(email: string, password: string) {
     }
   } catch (e) {
     console.error(e);
-    return "error";
+    return "error during login";
   }
 }
