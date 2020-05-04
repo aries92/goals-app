@@ -22,3 +22,10 @@ export function context({ req }) {
     return {};
   }
 }
+
+export function handleError(message: string, fallback?: string) {
+  if (message) {
+    throw Error(message);
+  }
+  throw fallback;
+}

@@ -1,22 +1,23 @@
 import { useMutation } from "@apollo/react-hooks";
 import React from "react";
 import Entry from "../../components/Entry";
+import { SCREENS } from "../../constants";
 import { Container, Link } from "../../Styled";
 import { IForm } from "../../types";
 import { REGISTER } from "./schema";
 import { Props } from "./type";
 
-function Register({ route, navigation }: Props) {
+function Register({ navigation }: Props) {
   const [register, { loading, error, data }] = useMutation(REGISTER);
 
   function handleEntryPress() {
-    navigation.navigate(route.params.to);
+    navigation.navigate(SCREENS.login);
   }
   async function handleSubmit(form: IForm) {
     await register({ variables: { ...form } });
 
     setTimeout(() => {
-      navigation.navigate(route.params.to);
+      navigation.navigate(SCREENS.login);
     }, 1000);
   }
   return (
