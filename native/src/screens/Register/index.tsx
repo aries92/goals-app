@@ -4,7 +4,7 @@ import Entry from "../../components/Entry";
 import { SCREENS } from "../../constants";
 import { Container, Link } from "../../Styled";
 import { IForm } from "../../types";
-import { REGISTER } from "./schema";
+import { REGISTER } from "../../schema";
 import { Props } from "./type";
 
 function Register({ navigation }: Props) {

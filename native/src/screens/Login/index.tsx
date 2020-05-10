@@ -6,7 +6,7 @@ import { SCREENS } from "../../constants";
 import AuthContext from "../../context";
 import { Container, Link } from "../../Styled";
 import { IForm } from "../../types";
-import { LOGIN } from "./schema";
+import { LOGIN } from "../../schema";
 import { Props } from "./type";
 
 function Login({ navigation }: Props) {

@@ -3,16 +3,17 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import ApolloClient, { InMemoryCache } from "apollo-boost";
+import jwt from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import "react-native-gesture-handler";
 import { SCREENS } from "./constants";
+import AuthContext from "./context";
 import Dashboard from "./screens/Dashboard";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
 import { Container } from "./Styled";
-import { RootStackParamList, IAuth } from "./types";
-import AuthContext from "./context";
+import { IAuth, IToken, RootStackParamList } from "./types";
 
 const Stack = createStackNavigator<RootStackParamList>();
 const cache = new InMemoryCache();
@@ -30,14 +31,16 @@ const client = new ApolloClient({
 });
 
 export default function App() {
-  const [token, setToken] = useState("");
+  const [user, setUser] = useState<IToken | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        setToken(token as string);
+        // @ts-ignore
+        const { user } = jwt.verify(token as string, "test");
+        setUser(user);
       } catch (e) {
       } finally {
         setLoading(false);
@@ -49,17 +52,20 @@ export default function App() {
 
   const authContext = React.useMemo(
     () =>
-      ({
-        signIn: async token => {
+      (({
+        signIn: async (token: string) => {
           await AsyncStorage.setItem("token", token);
-          setToken(token);
+          // @ts-ignore
+          const { user } = jwt.verify(token as string, "test");
+          setUser(user);
         },
         signOut: async () => {
           await AsyncStorage.removeItem("token");
-          setToken("");
-        }
-      } as IAuth),
-    []
+          setUser(null);
+        },
+        user
+      } as unknown) as IAuth),
+    [user]
   );
 
   if (loading) {
@@ -75,7 +81,7 @@ export default function App() {
       <ApolloProvider client={client}>
         <NavigationContainer>
           <Stack.Navigator>
-            {token ? (
+            {user ? (
               <Stack.Screen name={SCREENS.dashboard} component={Dashboard} />
             ) : (
               <>

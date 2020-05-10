@@ -1,32 +1,52 @@
+import { ApolloError, gql } from "apollo-server-express";
 import { IGoalComplete, IGoalCreate } from "../../types";
-import { getGoals, completeGoal, createGoal } from "./service";
-import { gql } from "apollo-server-express";
+import { withAuth } from "../../utils/helpers";
+import { addGoal, deleteGoal, getGoals, setGoal } from "./service";
 
 export const typeDefs = gql`
   extend type Query {
     goals: [Goal]
   }
   extend type Mutation {
-    createGoal(userId: String, text: String): String
-    completeGoal(id: String, complete: Boolean, userId: String): String
+    addGoal(userId: Int, text: String): Goal
+    deleteGoal(id: Int): String
+    setGoal(id: Int, complete: Boolean, userId: Int): Goal
   }
   type Goal {
-    id: String
+    id: Int
     text: String
     complete: Boolean
+    userId: Int
   }
 `;
 
 export const resolvers = {
   Query: {
-    goals: async () => await getGoals()
+    goals: withAuth(async () => await getGoals())
   },
   Mutation: {
-    createGoal: async (_: any, { userId, text }: IGoalCreate) => {
-      return await createGoal(userId, text);
-    },
-    completeGoal: async (_: any, { id, complete, userId }: IGoalComplete) => {
-      return await completeGoal(id, complete, userId);
-    }
+    addGoal: withAuth(async (_: any, { userId, text }: IGoalCreate) => {
+      try {
+        return await addGoal(userId, text);
+      } catch (e) {
+        throw new ApolloError(e.message);
+      }
+    }),
+    setGoal: withAuth(
+      async (_: any, { id, complete, userId }: IGoalComplete) => {
+        try {
+          return await setGoal(id, complete, userId);
+        } catch (e) {
+          throw new ApolloError(e.message);
+        }
+      }
+    ),
+    deleteGoal: withAuth(async (_: any, { id }: { id: number }) => {
+      try {
+        return await deleteGoal(id);
+      } catch (e) {
+        throw new ApolloError(e.message);
+      }
+    })
   }
 };

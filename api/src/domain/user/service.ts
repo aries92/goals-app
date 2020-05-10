@@ -43,16 +43,6 @@ export async function createUser(email: string, password: string) {
   }
 }
 
-export async function removeUser(email: string) {
-  try {
-    await db.query(`DELETE FROM "user" WHERE "email" = $1;`, [email]);
-    return "user deleted";
-  } catch (e) {
-    console.error(e);
-    return "error";
-  }
-}
-
 export async function login(email: string, password: string) {
   try {
     const res = await db.query(

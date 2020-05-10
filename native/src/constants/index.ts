@@ -1,5 +1,5 @@
 export const SCREENS = {
   login: "Login",
   register: "Register",
-  dashboard: "Dashboard",
+  dashboard: "Dashboard"
 } as const;

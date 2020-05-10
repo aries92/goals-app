@@ -5,7 +5,7 @@ import { AuthenticationError } from "apollo-server-express";
 export function withAuth(cb: any) {
   return async (_: any, __: any, context: any, info: any) => {
     if (!context.user) {
-      return "not authorize";
+      return new AuthenticationError("not authorized");
     }
     return cb(_, __, context, info);
   };

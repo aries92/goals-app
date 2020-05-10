@@ -1,15 +1,27 @@
 import db from "../../db";
+import { handleError } from "../../utils/helpers";
 
-export async function createGoal(userId: number, text: string) {
+export async function addGoal(userId: number, text: string) {
   try {
-    await db.query(
-      `INSERT INTO "goal" ("userId", "text", "complete") VALUES ($1, $2, false)`,
+    const res = await db.query(
+      `INSERT INTO "goal" ("userId", "text", "complete") 
+       VALUES ($1, $2, false) 
+       RETURNING "id" ,"text", "userId", "complete"`,
       [userId, text]
     );
-    return "done";
+    return res.rows[0];
   } catch (e) {
     console.error(e);
-    return "error";
+    handleError(e.message, "error during adding goal");
+  }
+}
+export async function deleteGoal(id: number) {
+  try {
+    const res = await db.query(`DELETE FROM "goal" WHERE "id" = $1`, [id]);
+    return res.rows[0];
+  } catch (e) {
+    console.error(e);
+    handleError(e.message, "error during adding goal");
   }
 }
 export async function getGoals() {
@@ -18,22 +30,18 @@ export async function getGoals() {
     return rows;
   } catch (e) {
     console.error(e);
-    return "error";
+    handleError(e.message, "error during getting goals");
   }
 }
-export async function completeGoal(
-  id: number,
-  complete: boolean,
-  userId: number
-) {
+export async function setGoal(id: number, complete: boolean, userId: number) {
   try {
-    await db.query(
-      `UPDATE "goals" SET "complete" = $1, "userId" = $2 WHERE "id" = $2;`,
+    const res = await db.query(
+      `UPDATE "goal" SET "complete" = $1, "userId" = $2 WHERE "id" = $3 RETURNING "id","complete";`,
       [complete, userId, id]
     );
-    return "done";
+    return res.rows[0];
   } catch (e) {
     console.error(e);
-    return "error";
+    handleError(e.message, "error during setting goal");
   }
 }

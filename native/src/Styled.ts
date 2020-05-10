@@ -11,8 +11,22 @@ export const Input = styled.TextInput`
 export const Link = styled.Text`
   color: blue;
 `;
-export const Container = styled.View`
+export const Container = styled.ScrollView`
   padding: 15px;
+`;
+export const Box = styled.View`
+  display: flex;
+  flex-direction: ${({ row }: { row: boolean }) => (row ? "row" : "column")}
+    ${({ wrap }: { wrap: boolean }) => wrap && `flex-wrap: wrap`}
+    ${({ j }: { j: string }) => j && `justify-content: ${j}`}
+    ${({ a }: { a: string }) => a && `align-items: ${a}`}
+    ${({ m }: { m: string }) => m && `margin: ${m}`}
+    ${({ p }: { p: string }) => p && `padding: ${p}`};
+`;
+
+export const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
 `;
 
 export const Message = {

@@ -1,6 +1,6 @@
+import { ApolloError, AuthenticationError, gql } from "apollo-server-express";
 import { IUser } from "../../types";
-import { createUser, getUser, login, removeUser } from "./service";
-import { gql, AuthenticationError, ApolloError } from "apollo-server-express";
+import { createUser, getUser, login } from "./service";
 
 export const typeDefs = gql`
   extend type Query {
@@ -9,7 +9,6 @@ export const typeDefs = gql`
   extend type Mutation {
     getUser(email: String): String
     createUser(email: String, password: String): String
-    removeUser(email: String): String
     login(email: String, password: String): String
   }
 `;
@@ -25,9 +24,6 @@ export const resolvers = {
       } catch (e) {
         throw new ApolloError(e.message);
       }
-    },
-    removeUser: async (_: any, { email }: any) => {
-      return await removeUser(email);
     },
     login: async (_: any, { email, password }: IUser) => {
       try {
