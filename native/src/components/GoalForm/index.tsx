@@ -1,20 +1,19 @@
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Formik } from "formik";
-import React, { useContext } from "react";
+import React from "react";
 import { ActivityIndicator, Button } from "react-native";
-import AuthContext from "../../context";
-import { GET_GOALS, ADD_GOAL } from "../../schema";
+import { ADD_GOAL, GET_GOALS, GET_USER } from "../../schema";
 import { Box, Input, Message } from "../../Styled";
 
 function GoalForm() {
   const [addGoal, { loading, error }] = useMutation(ADD_GOAL);
-  const { user } = useContext(AuthContext);
+  const { data } = useQuery(GET_USER);
 
   function handleSubmit({ text }: { text: string }) {
     addGoal({
       variables: {
         text,
-        userId: user.id
+        userId: data.user.id
       },
       update(cache, { data: { addGoal } }) {
         const { goals }: any = cache.readQuery({ query: GET_GOALS });

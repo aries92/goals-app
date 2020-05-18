@@ -1,17 +1,15 @@
 import { useMutation } from "@apollo/react-hooks";
-import AsyncStorage from "@react-native-community/async-storage";
-import React, { useContext } from "react";
+import React from "react";
 import Entry from "../../components/Entry";
 import { SCREENS } from "../../constants";
-import AuthContext from "../../context";
+import { LOGIN, SIGN_IN } from "../../schema";
 import { Container, Link } from "../../Styled";
 import { IForm } from "../../types";
-import { LOGIN } from "../../schema";
 import { Props } from "./type";
 
 function Login({ navigation }: Props) {
   const [login, { loading, error }] = useMutation(LOGIN);
-  const { signIn } = useContext(AuthContext);
+  const [signIn] = useMutation(SIGN_IN);
 
   function handleEntryPress() {
     navigation.navigate(SCREENS.register);
@@ -19,8 +17,7 @@ function Login({ navigation }: Props) {
 
   async function handleSubmit(form: IForm) {
     const { data } = await login({ variables: { ...form } });
-    await AsyncStorage.setItem("token", data?.login);
-    signIn(data?.login);
+    signIn({ variables: { token: data?.login } });
   }
 
   return (

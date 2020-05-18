@@ -1,13 +1,12 @@
-import { useMutation } from "@apollo/react-hooks";
-import React, { useContext } from "react";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import React from "react";
 import { ActivityIndicator, Button, Text } from "react-native";
-import AuthContext from "../../context";
-import { IGoal } from "../../types";
-import { DELETE_GOAL, SET_GOAL, GET_GOALS } from "../../schema";
+import { DELETE_GOAL, GET_GOALS, GET_USER, SET_GOAL } from "../../schema";
 import { Box, Message } from "../../Styled";
+import { IGoal } from "../../types";
 
 function Goal({ id, text, complete, userId }: IGoal) {
-  const { user } = useContext(AuthContext);
+  const { data } = useQuery(GET_USER);
   const [setGoal, propSet] = useMutation(SET_GOAL);
   const [deleteGoal, propDelete] = useMutation(DELETE_GOAL);
 
@@ -19,7 +18,7 @@ function Goal({ id, text, complete, userId }: IGoal) {
       variables: {
         id,
         complete,
-        userId: user.id
+        userId: data.user.id
       }
     });
   }
@@ -27,8 +26,7 @@ function Goal({ id, text, complete, userId }: IGoal) {
     deleteGoal({
       variables: { id },
       update: cache => {
-        // @ts-ignore
-        const { goals } = cache.readQuery({ query: GET_GOALS });
+        const { goals }: any = cache.readQuery({ query: GET_GOALS });
 
         cache.writeQuery({
           query: GET_GOALS,
