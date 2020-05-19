@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import http from "http";
 import helmet from "helmet";
 import logger from "morgan";
 import { ApolloServer } from "apollo-server-express";
@@ -17,6 +18,9 @@ const server = new ApolloServer({
 const app = express();
 const path = "/graphql";
 
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 app.use(helmet());
 app.use(logger(":method :url :status - :response-time ms"));
 app.use(cors());
@@ -26,4 +30,4 @@ app.use(query());
 
 server.applyMiddleware({ app, path });
 
-export default app;
+export default httpServer;

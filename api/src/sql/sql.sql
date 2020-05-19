@@ -60,6 +60,10 @@ ALTER TABLE "chatMessage" ADD COLUMN "typeId" integer;
 
 ALTER TABLE "chatMessage" ADD CONSTRAINT "chatMessage_fk1" FOREIGN KEY ("typeId") REFERENCES "chatMessageType"("id");
 
+DROP TABLE "chatMessageType";
+
+ALTER TABLE "chatMessage" DROP COLUMN "typeId";
+
 -- seeders
 INSERT INTO "user" ("email", "password", "salt") VALUES ('test@email.com', '111', 'a12bc34de56fg');
 

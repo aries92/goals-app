@@ -1,34 +1,69 @@
 import { ApolloProvider } from "@apollo/react-common";
 import { useQuery } from "@apollo/react-hooks";
 import AsyncStorage from "@react-native-community/async-storage";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import ApolloClient, { InMemoryCache } from "apollo-boost";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import ApolloClient from "apollo-client";
+import { split } from "apollo-link";
+import { setContext } from "apollo-link-context";
+import { HttpLink } from "apollo-link-http";
+import { WebSocketLink } from "apollo-link-ws";
+import { getMainDefinition } from "apollo-utilities";
 import jwt from "jsonwebtoken";
 import React from "react";
 import { ActivityIndicator } from "react-native";
 import "react-native-gesture-handler";
 import { SCREENS } from "./constants";
 import { GET_USER } from "./schema";
+import Chat from "./screens/Chat";
 import Dashboard from "./screens/Dashboard";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
 import { Container } from "./Styled";
 import { RootStackParamList } from "./types";
 
+const authLink = setContext(async (_, { headers }) => {
+  const token = await AsyncStorage.getItem("token");
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : ""
+    }
+  };
+});
+
+const httpLink = new HttpLink({
+  uri: "http://localhost:3000/graphql"
+});
+
+const wsLink = new WebSocketLink({
+  uri: `ws://localhost:3000/graphql`,
+  options: {
+    reconnect: true
+  }
+});
+
+const link = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
 const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createMaterialTopTabNavigator();
+
 const cache = new InMemoryCache();
 const client = new ApolloClient({
-  uri: "http://localhost:3000/graphql",
+  link: authLink.concat(link),
   cache,
-  request: async operation => {
-    const token = await AsyncStorage.getItem("token");
-    operation.setContext({
-      headers: {
-        authorization: token ? `Bearer ${token}` : ""
-      }
-    });
-  },
   resolvers: {
     Query: {
       user: async () => {
@@ -71,18 +106,20 @@ function Screens() {
       </Container>
     );
   }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {data.user ? (
-          <Stack.Screen name={SCREENS.dashboard} component={Dashboard} />
-        ) : (
-          <>
-            <Stack.Screen name={SCREENS.login} component={Login} />
-            <Stack.Screen name={SCREENS.register} component={Register} />
-          </>
-        )}
-      </Stack.Navigator>
+      {data.user ? (
+        <Tab.Navigator>
+          <Tab.Screen name={SCREENS.dashboard} component={Dashboard} />
+          <Tab.Screen name={SCREENS.chat} component={Chat} />
+        </Tab.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen name={SCREENS.login} component={Login} />
+          <Stack.Screen name={SCREENS.register} component={Register} />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }
