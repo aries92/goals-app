@@ -111,8 +111,8 @@ function Screens() {
     <NavigationContainer>
       {data.user ? (
         <Tab.Navigator>
-          <Tab.Screen name={SCREENS.dashboard} component={Dashboard} />
           <Tab.Screen name={SCREENS.chat} component={Chat} />
+          <Tab.Screen name={SCREENS.dashboard} component={Dashboard} />
         </Tab.Navigator>
       ) : (
         <Stack.Navigator>

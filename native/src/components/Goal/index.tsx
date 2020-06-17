@@ -13,7 +13,7 @@ function Goal({ id, text, complete, userId }: IGoal) {
   const error = propSet.error || propDelete.error;
   const loading = propSet.loading || propDelete.loading;
 
-  function handlePress(id: number, complete: boolean) {
+  function handleGoalPress(id: number, complete: boolean) {
     setGoal({
       variables: {
         id,
@@ -51,14 +51,14 @@ function Goal({ id, text, complete, userId }: IGoal) {
             <Button
               title="Todo"
               color="blue"
-              onPress={() => handlePress(id, false)}
+              onPress={() => handleGoalPress(id, false)}
             />
           </>
         ) : (
           <Button
             title="Done"
             color="green"
-            onPress={() => handlePress(id, true)}
+            onPress={() => handleGoalPress(id, true)}
           />
         )}
         <Box m="0 0 0 10px">

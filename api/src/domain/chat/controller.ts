@@ -1,17 +1,17 @@
 import { ApolloError, gql, PubSub } from "apollo-server-express";
 import { withAuth } from "../../utils/helpers";
-import { createChat, getChatMessages, sendMessage } from "./service";
+import { getMessages, sendMessage } from "./service";
 
 const pubsub = new PubSub();
 const MESSAGE_SENT = "MESSAGE_SENT";
 
 export const typeDefs = gql`
   extend type Query {
-    getChatMessages(userId: Int): [Message]
+    messages(userIdList: [Int]): [Message]
+    chatId(userIdList: [Int]): Int
   }
   extend type Mutation {
-    createChat(userId: Int): String
-    sendMessage(chatId: Int, text: String, typeId: Int): String
+    sendMessage(userIdList: [Int], userId: Int, text: String): String
   }
   extend type Subscription {
     messageSent: [Message]
@@ -20,7 +20,7 @@ export const typeDefs = gql`
     id: Int
     text: String
     chatId: Int
-    type: String
+    userId: String
   }
 `;
 
@@ -31,26 +31,25 @@ export const resolvers = {
     }
   },
   Query: {
-    getChatMessages: withAuth(async (_: any, { userId }: any) => {
+    messages: withAuth(async (_: any, { userIdList }: any) => {
       try {
-        return await getChatMessages(userId);
+        return await getMessages(userIdList);
       } catch (e) {
         throw new ApolloError(e.message);
       }
     })
   },
   Mutation: {
-    createChat: withAuth(async (_: any, { userId }: any) => {
+    sendMessage: withAuth(async (_: any, { userIdList, userId, text }: any) => {
       try {
-        return await createChat(userId);
-      } catch (e) {
-        throw new ApolloError(e.message);
-      }
-    }),
-    sendMessage: withAuth(async (_: any, { chatId, text, typeId }: any) => {
-      try {
-        await pubsub.publish(MESSAGE_SENT, {messageSent: {chatId, text, typeId}});
-        return await sendMessage(chatId, text, typeId);
+        const message = await sendMessage(userIdList, userId, text);
+        await pubsub.publish(MESSAGE_SENT, {
+          messageSent: {
+            chatId: message.chatId,
+            userId: message.userId,
+            text: message.text
+          }
+        });
       } catch (e) {
         throw new ApolloError(e.message);
       }

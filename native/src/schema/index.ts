@@ -14,8 +14,45 @@ export const SIGN_OUT = gql`
 `;
 
 export const GET_USER = gql`
-  query User {
+  query GetUser {
     user @client
+  }
+`;
+
+export const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      email
+    }
+  }
+`;
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($userIdList: [Int], $userId: Int, $text: String) {
+    sendMessage(userIdList: $userIdList, userId: $userId, text: $text)
+  }
+`;
+
+export const GET_MESSAGES = gql`
+  query GetMessages($userIdList: [Int]) {
+    messages(userIdList: $userIdList) {
+      id
+      chatId
+      text
+      userId
+    }
+  }
+`;
+
+export const MESSAGE_SENT = gql`
+  subscription MessageSent {
+    messageSent {
+      id
+      chatId
+      text
+      userId
+    }
   }
 `;
 
@@ -27,6 +64,7 @@ export const SET_GOAL = gql`
     }
   }
 `;
+
 export const DELETE_GOAL = gql`
   mutation DeleteGoal($id: Int) {
     deleteGoal(id: $id)
@@ -45,7 +83,7 @@ export const ADD_GOAL = gql`
 `;
 
 export const GET_GOALS = gql`
-  query Goal {
+  query Goals {
     goals {
       id
       text

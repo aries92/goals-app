@@ -21,7 +21,17 @@ export async function getUser(email: string) {
     return rows[0];
   } catch (e) {
     console.error(e);
-    return "error";
+    handleError(e.message, "error during fetching user");
+  }
+}
+
+export async function getUsers() {
+  try {
+    const { rows } = await db.query(`SELECT * FROM "user"`, []);
+    return rows;
+  } catch (e) {
+    console.error(e);
+    handleError(e.message, "error during fetching users");
   }
 }
 

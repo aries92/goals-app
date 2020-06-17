@@ -1,49 +1,66 @@
 import db from "../../db";
+import { handleError } from "../../utils/helpers";
 
-export async function getChatMessages(userId: number) {
+export async function getMessages(userIdList: [number]) {
   try {
     const { rows } = await db.query(
-      `SELECT "cm"."id",
-              "cm"."text",
-              "cm"."chatId",
-              "cmt"."type"
-         FROM "chatMessage" cm,
-              "chat" c,
-              "chatMessageType" cmt
-        WHERE "c"."userId" = $1
-          AND "cm"."typeId" = "cmt"."id"; `,
-      [userId]
+      `SELECT *
+         FROM "chatMessage"
+         WHERE "chatId" = (
+             SELECT "chatId"
+             FROM "chatUser"
+             WHERE "userId" = ANY($1::int[])
+             GROUP BY "chatId"
+             HAVING COUNT(DISTINCT "userId") = $2
+         )`,
+      [userIdList, userIdList.length]
     );
     return rows;
   } catch (e) {
     console.error(e);
-    return "error";
-  }
-}
-
-export async function createChat(userId: number) {
-  try {
-    await db.query(`INSERT INTO "chat" ("userId") VALUES ($1);`, [userId]);
-    return "done";
-  } catch (e) {
-    console.error(e);
-    return "error";
+    handleError(e.message, "error during getting messages");
   }
 }
 
 export async function sendMessage(
-  chatId: number,
-  text: string,
-  typeId: string
+  userIdList: [number],
+  userId: number,
+  text: string
 ) {
   try {
-    await db.query(
-      `INSERT INTO "chatMessage" ("chatId", "text", "typeId") VALUES ($1,$2,$3);`,
-      [chatId, text, typeId]
+    const {rows} = await db.query(
+        `
+                SELECT *
+                FROM "chat";
+                DO
+                $$
+                    DECLARE
+                        "newChatId" integer;
+                    BEGIN
+                        SELECT "chatId"
+                        FROM "chatUser"
+                        WHERE "userId" = ANY ($1::int[])
+                        GROUP BY "chatId"
+                        HAVING COUNT(DISTINCT "userId") = $2
+                        INTO "newChatId";
+
+                        IF ("newChatId") IS NULL THEN
+                            INSERT INTO "chat" DEFAULT
+                            VALUES
+                            RETURNING "id" INTO "newChatId";
+                        END IF;
+                        INSERT INTO "chatMessage" ("chatId", "text", "userId")
+                        VALUES ("newChatId", $3, $4)
+                        RETURNING *;
+                    END;
+                $$
+                ;
+      `,
+      [userIdList, userIdList.length, text, userId]
     );
-    return "done";
+    return rows[0];
   } catch (e) {
     console.error(e);
-    return "error";
+    handleError(e.message, "error during getting messages");
   }
 }
